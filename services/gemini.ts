@@ -28,7 +28,7 @@ export const generateNewWordsBatch = async (count: number, existingWords: string
     Mots à EXCLURE (déjà générés) : ${excludedSample || "Aucun"}.
 
     Règles :
-    1. Orthographe strictement IDENTIQUE.
+    1. Orthographe strictement IDENTIQUE (ex: "piano", "banana", "radio", "robot").
     2. Mots concrets faciles à visualiser (objets, animaux, nature).
     3. Pas de concepts abstraits.
     4. JSON uniquement.
@@ -98,3 +98,51 @@ export const generateImageForWord = async (word: string): Promise<string> => {
     return `https://picsum.photos/seed/${word}/800/800`;
   }
 };
+
+/**
+ * Analyzes an uploaded image to find a matching FR/IT word.
+ */
+export const identifyWordFromImage = async (base64Image: string): Promise<string | null> => {
+  const ai = getAiClient();
+  
+  // Strip the prefix usually attached to browser FileReader results (e.g., "data:image/jpeg;base64,")
+  const base64Data = base64Image.split(',')[1];
+
+  const prompt = `
+    Regarde cette image. Identifie l'objet principal.
+    Si le mot pour cet objet s'écrit EXACTEMENT de la même façon en Français et en Italien (ex: Piano, Taxi, Radio, Lion), retourne ce mot.
+    Si le mot est différent (ex: Chien/Cane, Voiture/Macchina), retourne NULL.
+    
+    Réponds uniquement au format JSON : { "word": "LE_MOT_OU_NULL" }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: {
+            parts: [
+                { inlineData: { mimeType: "image/jpeg", data: base64Data } },
+                { text: prompt }
+            ]
+        },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    word: { type: Type.STRING, nullable: true }
+                }
+            }
+        }
+    });
+
+    const text = response.text;
+    if(!text) return null;
+    const json = JSON.parse(text);
+    return json.word || null;
+
+  } catch (error) {
+    console.error("Error identifying image:", error);
+    return null;
+  }
+}
