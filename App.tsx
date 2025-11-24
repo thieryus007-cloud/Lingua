@@ -130,6 +130,7 @@ const App: React.FC = () => {
 
     try {
       const existingWords = library.map(l => l.word);
+<<<<<<< HEAD
 
       // Use Claude or Gemini based on configuration
       const newWordStrings = APP_CONFIG.USE_CLAUDE
@@ -137,6 +138,11 @@ const App: React.FC = () => {
         : await generateNewWordsBatch(count, existingWords);
 
       setGenStatus({ message: `Récupération des photos (0/${newWordStrings.length})...`, progress: 30 });
+=======
+      const newWordStrings = await generateNewWordsBatch(count, existingWords);
+
+      setGenStatus({ message: `Génération des images (0/${newWordStrings.length})...`, progress: 30 });
+>>>>>>> origin/main
 
       for (let i = 0; i < newWordStrings.length; i++) {
         const wordStr = newWordStrings[i];
@@ -193,7 +199,11 @@ const App: React.FC = () => {
       try {
         const base64String = reader.result as string;
 
+<<<<<<< HEAD
         // 1. Identify word using Claude or Gemini
+=======
+        // 1. Identify word
+>>>>>>> origin/main
         setGenStatus({ message: 'Identification de l\'objet...', progress: 50 });
         const identifiedWord = APP_CONFIG.USE_CLAUDE
           ? await identifyWordFromImageWithClaude(base64String)

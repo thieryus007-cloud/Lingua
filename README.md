@@ -4,10 +4,10 @@
 
 # LinguaGemini - Apprentissage Visuel Franco-Italien 🇫🇷🇮🇹
 
-Application d'apprentissage de vocabulaire utilisant **Claude AI** et **vraies photos** pour générer des mots cognats (orthographe identique en français et italien) avec audio bilingue, et système de révision espacée.
+Application d'apprentissage de vocabulaire utilisant **Claude AI / Gemini AI** et **vraies photos** pour générer des mots cognats (orthographe identique en français et italien) avec audio bilingue, et système de révision espacée.
 
 **✨ Fonctionnalités:**
-- 🤖 Génération automatique de mots via **Claude AI** (meilleure précision)
+- 🤖 Génération automatique de mots via **Claude AI** ou **Gemini AI** (configurable)
 - 📸 **Photos réelles** d'objets via Unsplash API (100% fiable)
 - 🔍 Reconnaissance d'objets depuis vos photos
 - 🔊 Prononciation audio FR/IT
@@ -16,7 +16,7 @@ Application d'apprentissage de vocabulaire utilisant **Claude AI** et **vraies p
 - 💾 Stockage local (IndexedDB)
 - ♿ Accessibilité complète
 - 📱 Support PWA
-- 🔄 Support Gemini (legacy)
+- 🔄 Support Claude AI + Gemini AI (configurable)
 
 View your app in AI Studio: https://ai.studio/apps/drive/1bXkH99fyQYDR6v3dTSTzXQaG7rPSZvkv
 
@@ -27,9 +27,9 @@ View your app in AI Studio: https://ai.studio/apps/drive/1bXkH99fyQYDR6v3dTSTzXQ
 ### Prérequis
 - **Node.js** (v18 ou supérieur)
 - **npm** ou **yarn**
-- **Clé API Claude** (recommandé) - https://console.anthropic.com/
-- **Clé API Unsplash** (recommandé) - https://unsplash.com/developers
-- Clé API Gemini (optionnel, legacy) - https://aistudio.google.com/app/apikey
+- **Clé API Unsplash** (gratuit, 50 req/h) - https://unsplash.com/developers
+- **Clé API Gemini** (gratuit) - https://aistudio.google.com/app/apikey
+- Clé API Claude (optionnel, payant) - https://console.anthropic.com/
 
 ### Étapes
 
@@ -53,20 +53,20 @@ View your app in AI Studio: https://ai.studio/apps/drive/1bXkH99fyQYDR6v3dTSTzXQ
 
    Éditez `.env` et ajoutez vos clés API :
    ```bash
-   # Claude API (Primary - pour génération de mots)
-   CLAUDE_API_KEY=sk-ant-xxxxxxxxxxxx
-
-   # Unsplash API (Primary - pour vraies photos)
+   # Unsplash API (Required - pour photos réelles)
    UNSPLASH_ACCESS_KEY=votre_access_key_unsplash
 
-   # Optionnel : Gemini (Legacy support)
+   # Gemini API (Required - pour génération de mots)
    API_KEY=votre_clé_api_gemini
+
+   # Claude API (Optionnel - si vous voulez utiliser Claude au lieu de Gemini)
+   CLAUDE_API_KEY=sk-ant-xxxxxxxxxxxx
    ```
 
    **Obtenir les clés API :**
-   - **Claude** : https://console.anthropic.com/ (gratuit pour commencer)
    - **Unsplash** : https://unsplash.com/developers (gratuit, 50 requêtes/heure)
-   - Gemini : https://aistudio.google.com/app/apikey (optionnel)
+   - **Gemini** : https://aistudio.google.com/app/apikey (gratuit)
+   - Claude (optionnel) : https://console.anthropic.com/ (payant)
 
 4. **Lancer l'application**
    ```bash
