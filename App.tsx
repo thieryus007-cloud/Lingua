@@ -15,6 +15,11 @@ import {
 } from './services/storage';
 import { APP_CONFIG } from './services/config';
 import { stopAudio } from './services/audio';
+import {
+  exportAllPhotos,
+  importLocalPhotos,
+  exportPhotoDatabase
+} from './services/photoManager';
 import { ImageSlide } from './components/ImageSlide';
 import { ProgressBar } from './components/ProgressBar';
 import { WordCard } from './components/WordCard';
@@ -36,7 +41,10 @@ import {
   Pause,
   Brain,
   BarChart3,
-  FileUp
+  FileUp,
+  Images,
+  FolderOpen,
+  PackageOpen
 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -60,6 +68,7 @@ const App: React.FC = () => {
   // File Input Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
+  const photoImportInputRef = useRef<HTMLInputElement>(null);
 
   // Playback refs
   const timerRef = useRef<number | null>(null);
@@ -316,6 +325,110 @@ const App: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  // --- Logic: Export Photos ---
+  const handleExportPhotos = async () => {
+    if (library.length === 0) {
+      alert("Aucune photo à exporter");
+      return;
+    }
+
+    setAppState(AppState.GENERATING);
+    setGenStatus({ message: 'Export des photos...', progress: 0 });
+
+    try {
+      await exportAllPhotos(library, (current, total) => {
+        const progressPercent = Math.round((current / total) * 100);
+        setGenStatus({
+          message: `Export des photos (${current}/${total})...`,
+          progress: progressPercent
+        });
+      });
+
+      setGenStatus({ message: `✅ ${library.length} photos exportées!`, progress: 100 });
+      setTimeout(() => {
+        setAppState(AppState.HOME);
+      }, 2000);
+    } catch (error) {
+      console.error('Error exporting photos:', error);
+      alert('Erreur lors de l\'export des photos');
+      setAppState(AppState.HOME);
+    }
+  };
+
+  const handleExportPhotoDatabase = () => {
+    exportPhotoDatabase(library);
+    alert('Base de données photo exportée! Téléchargez maintenant les photos avec "Exporter Photos".');
+  };
+
+  // --- Logic: Import Local Photos ---
+  const handleImportLocalPhotos = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setAppState(AppState.GENERATING);
+    setGenStatus({ message: 'Analyse des photos...', progress: 0 });
+
+    try {
+      const results = await importLocalPhotos(files, (current, total, word) => {
+        const progressPercent = Math.round((current / total) * 80); // Reserve 80% for processing
+        setGenStatus({
+          message: word
+            ? `Identification: ${word} (${current}/${total})...`
+            : `Traitement (${current}/${total})...`,
+          progress: progressPercent
+        });
+      });
+
+      // Save results to library
+      setGenStatus({ message: 'Enregistrement dans la bibliothèque...', progress: 90 });
+
+      let addedCount = 0;
+      let skippedCount = 0;
+
+      for (const result of results) {
+        // Check if word already exists
+        const existingWord = library.find(w => w.word.toLowerCase() === result.word.toLowerCase());
+
+        if (existingWord) {
+          skippedCount++;
+          continue;
+        }
+
+        const newEntry: Omit<LessonWord, 'id'> = {
+          word: result.word,
+          translation: result.word,
+          imageUrl: result.imageUrl,
+          createdAt: Date.now(),
+          reviewCount: 0,
+          difficulty: 'medium',
+          correctCount: 0,
+          incorrectCount: 0
+        };
+
+        await saveWordToLibrary(newEntry);
+        addedCount++;
+      }
+
+      await loadLibrary();
+
+      setGenStatus({
+        message: `✅ ${addedCount} photos importées, ${skippedCount} ignorées (doublons)`,
+        progress: 100
+      });
+
+      setTimeout(() => {
+        setAppState(AppState.HOME);
+      }, 3000);
+    } catch (error) {
+      console.error('Error importing local photos:', error);
+      alert('Erreur lors de l\'import des photos');
+      setAppState(AppState.HOME);
+    }
+
+    // Reset input
+    event.target.value = '';
+  };
+
   // --- Logic: Playback ---
   const startPlayback = () => {
     if (library.length === 0) return;
@@ -482,6 +595,64 @@ const App: React.FC = () => {
               accept="application/json"
               onChange={handleJSONImport}
             />
+
+            {/* Import Local Photos */}
+            <button
+              onClick={() => photoImportInputRef.current?.click()}
+              className="group flex flex-col items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white p-6 rounded-xl border border-white/10 transition-all duration-200"
+            >
+              <div className="p-3 rounded-full bg-orange-500/20 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                <FolderOpen className="w-6 h-6" />
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-sm">Importer Photos</div>
+                <div className="text-xs text-slate-400">Auto-détection</div>
+              </div>
+            </button>
+            <input
+              type="file"
+              ref={photoImportInputRef}
+              className="hidden"
+              accept="image/*"
+              multiple
+              onChange={handleImportLocalPhotos}
+            />
+
+            {/* Export Photos */}
+            <button
+              onClick={handleExportPhotos}
+              disabled={library.length === 0}
+              className={`group flex flex-col items-center justify-center gap-2 p-6 rounded-xl border transition-all duration-200
+                ${library.length > 0
+                  ? 'bg-slate-800 hover:bg-slate-700 text-white border-white/10'
+                  : 'bg-slate-800/50 text-slate-600 cursor-not-allowed border-white/5'}`}
+            >
+              <div className={`p-3 rounded-full transition-colors ${library.length > 0 ? 'bg-pink-500/20 text-pink-400 group-hover:bg-pink-500 group-hover:text-white' : 'bg-slate-700 text-slate-500'}`}>
+                <Images className="w-6 h-6" />
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-sm">Exporter Photos</div>
+                <div className="text-xs text-slate-400">Toutes</div>
+              </div>
+            </button>
+
+            {/* Export Database */}
+            <button
+              onClick={handleExportPhotoDatabase}
+              disabled={library.length === 0}
+              className={`group flex flex-col items-center justify-center gap-2 p-6 rounded-xl border transition-all duration-200
+                ${library.length > 0
+                  ? 'bg-slate-800 hover:bg-slate-700 text-white border-white/10'
+                  : 'bg-slate-800/50 text-slate-600 cursor-not-allowed border-white/5'}`}
+            >
+              <div className={`p-3 rounded-full transition-colors ${library.length > 0 ? 'bg-teal-500/20 text-teal-400 group-hover:bg-teal-500 group-hover:text-white' : 'bg-slate-700 text-slate-500'}`}>
+                <PackageOpen className="w-6 h-6" />
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-sm">Export DB</div>
+                <div className="text-xs text-slate-400">Métadonnées</div>
+              </div>
+            </button>
 
             {/* Quiz */}
             <button
