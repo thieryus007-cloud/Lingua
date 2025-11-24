@@ -2,7 +2,7 @@
 
 export const APP_CONFIG = {
   // AI Service Configuration
-  USE_CLAUDE: true, // Set to true to use Claude API instead of Gemini
+  USE_CLAUDE: false, // Set to false to use Gemini (free) instead of Claude (paid)
   USE_UNSPLASH: true, // Set to true to use real photos instead of generated images
 
   // Slideshow
