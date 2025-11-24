@@ -11,8 +11,15 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
+        // Gemini (legacy)
         'process.env.API_KEY': JSON.stringify(env.API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.API_KEY)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.API_KEY),
+        // Claude
+        'process.env.CLAUDE_API_KEY': JSON.stringify(env.CLAUDE_API_KEY),
+        // Unsplash
+        'process.env.UNSPLASH_ACCESS_KEY': JSON.stringify(env.UNSPLASH_ACCESS_KEY),
+        // Pexels (optional)
+        'process.env.PEXELS_API_KEY': JSON.stringify(env.PEXELS_API_KEY)
       },
       resolve: {
         alias: {
