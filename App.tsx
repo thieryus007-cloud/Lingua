@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AppState, LessonWord, GenerationStatus, FilterOptions } from './types';
+// AI Services - Claude (Primary) + Gemini (Legacy)
+import { generateCognatesWithClaude, identifyWordFromImageWithClaude } from './services/claude';
 import { generateNewWordsBatch, generateImageForWord, identifyWordFromImage } from './services/gemini';
+import { fetchPhotoFromUnsplash } from './services/unsplash';
 import {
   getLibrary,
   getFilteredLibrary,
@@ -127,16 +130,24 @@ const App: React.FC = () => {
 
     try {
       const existingWords = library.map(l => l.word);
-      const newWordStrings = await generateNewWordsBatch(count, existingWords);
 
-      setGenStatus({ message: `Génération des images (0/${newWordStrings.length})...`, progress: 30 });
+      // Use Claude or Gemini based on configuration
+      const newWordStrings = APP_CONFIG.USE_CLAUDE
+        ? await generateCognatesWithClaude(count, existingWords)
+        : await generateNewWordsBatch(count, existingWords);
+
+      setGenStatus({ message: `Récupération des photos (0/${newWordStrings.length})...`, progress: 30 });
 
       for (let i = 0; i < newWordStrings.length; i++) {
         const wordStr = newWordStrings[i];
         if (existingWords.includes(wordStr)) continue;
 
         try {
-          const imageUrl = await generateImageForWord(wordStr);
+          // Use Unsplash or Gemini image generation based on configuration
+          const imageUrl = APP_CONFIG.USE_UNSPLASH
+            ? await fetchPhotoFromUnsplash(wordStr)
+            : await generateImageForWord(wordStr);
+
           const newEntry: Omit<LessonWord, 'id'> = {
             word: wordStr,
             translation: wordStr,
@@ -182,9 +193,11 @@ const App: React.FC = () => {
       try {
         const base64String = reader.result as string;
 
-        // 1. Identify word
+        // 1. Identify word using Claude or Gemini
         setGenStatus({ message: 'Identification de l\'objet...', progress: 50 });
-        const identifiedWord = await identifyWordFromImage(base64String);
+        const identifiedWord = APP_CONFIG.USE_CLAUDE
+          ? await identifyWordFromImageWithClaude(base64String)
+          : await identifyWordFromImage(base64String);
 
         if (!identifiedWord) {
           alert("Désolé, je n'ai pas trouvé d'objet principal qui s'écrit pareil en Français et en Italien dans cette image.");

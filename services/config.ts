@@ -1,6 +1,10 @@
 // Application Configuration
 
 export const APP_CONFIG = {
+  // AI Service Configuration
+  USE_CLAUDE: true, // Set to true to use Claude API instead of Gemini
+  USE_UNSPLASH: true, // Set to true to use real photos instead of generated images
+
   // Slideshow
   SLIDE_DURATION: 6000, // 6 seconds
 
