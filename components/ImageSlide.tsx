@@ -1,7 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { LessonWord } from '../types';
 import { Volume2 } from 'lucide-react';
+import { playWordAudio, stopAudio } from '../services/audio';
 
 interface ImageSlideProps {
   data: LessonWord;
@@ -10,35 +10,18 @@ interface ImageSlideProps {
 }
 
 export const ImageSlide: React.FC<ImageSlideProps> = ({ data, isActive, enableAudio }) => {
-  
+
   useEffect(() => {
     if (isActive && enableAudio) {
-      playAudioSequence(data.word);
+      playWordAudio(data.word);
     }
+
+    return () => {
+      if (!isActive) {
+        stopAudio();
+      }
+    };
   }, [isActive, enableAudio, data.word]);
-
-  const playAudioSequence = (text: string) => {
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-
-    // French Pronunciation
-    const frUtterance = new SpeechSynthesisUtterance(text);
-    frUtterance.lang = 'fr-FR';
-    frUtterance.rate = 0.9;
-
-    // Italian Pronunciation
-    const itUtterance = new SpeechSynthesisUtterance(text);
-    itUtterance.lang = 'it-IT';
-    itUtterance.rate = 0.9;
-
-    // Sequence: FR -> wait -> IT
-    window.speechSynthesis.speak(frUtterance);
-    
-    // Small pause is handled naturally by the queue, but we can force a silent utterance if needed.
-    // Usually queuing them is enough.
-    
-    window.speechSynthesis.speak(itUtterance);
-  };
 
   if (!isActive) return null;
 

@@ -1,5 +1,5 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
+import { APP_CONFIG } from "./config";
 
 // Initialize Gemini Client
 const getAiClient = () => {
@@ -17,10 +17,10 @@ const getAiClient = () => {
  */
 export const generateNewWordsBatch = async (count: number, existingWords: string[]): Promise<string[]> => {
   const ai = getAiClient();
-  
-  // We send a sample of existing words to help the AI avoid duplicates, 
+
+  // We send a sample of existing words to help the AI avoid duplicates,
   // but not the whole list if it's huge to save context.
-  const excludedSample = existingWords.slice(-50).join(", ");
+  const excludedSample = existingWords.slice(-APP_CONFIG.MAX_EXCLUDED_WORDS_SAMPLE).join(", ");
 
   const prompt = `
     Génère une liste de ${count} noms communs concrets UNIQUES qui s'écrivent exactement de la même façon en Français et en Italien (vrais amis).
@@ -36,7 +36,7 @@ export const generateNewWordsBatch = async (count: number, existingWords: string
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: APP_CONFIG.GEMINI_TEXT_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -81,7 +81,7 @@ export const generateImageForWord = async (word: string): Promise<string> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-image",
+      model: APP_CONFIG.GEMINI_IMAGE_MODEL,
       contents: prompt,
       config: {}
     });
@@ -95,7 +95,7 @@ export const generateImageForWord = async (word: string): Promise<string> => {
     throw new Error("No image data generated");
   } catch (error) {
     console.error(`Error generating image for ${word}:`, error);
-    return `https://picsum.photos/seed/${word}/800/800`;
+    return `${APP_CONFIG.FALLBACK_IMAGE_URL}/${word}/${APP_CONFIG.MAX_IMAGE_SIZE}/${APP_CONFIG.MAX_IMAGE_SIZE}`;
   }
 };
 
@@ -118,7 +118,7 @@ export const identifyWordFromImage = async (base64Image: string): Promise<string
 
   try {
     const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: APP_CONFIG.GEMINI_TEXT_MODEL,
         contents: {
             parts: [
                 { inlineData: { mimeType: "image/jpeg", data: base64Data } },
