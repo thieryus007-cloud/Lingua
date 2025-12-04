@@ -28,6 +28,11 @@ View your app in AI Studio: https://ai.studio/apps/drive/1bXkH99fyQYDR6v3dTSTzXQ
 - **npm** ou **yarn**
 - Clé API Gemini (gratuite)
 
+> 🍎 **Mac Mini M4 :** Pour configurer Python, zip et pip sans Homebrew, consultez [SETUP_MAC.md](SETUP_MAC.md) ou exécutez :
+> ```bash
+> chmod +x setup-mac.sh && ./setup-mac.sh
+> ```
+
 ### Étapes
 
 1. **Cloner le dépôt**
