@@ -33,7 +33,9 @@ View your app in AI Studio: https://ai.studio/apps/drive/1bXkH99fyQYDR6v3dTSTzXQ
 > chmod +x setup-mac.sh && ./setup-mac.sh
 > ```
 >
-> 🐍 **Erreur pip "externally-managed-environment" ?** Utilisez un environnement virtuel. Voir [PYTHON_VENV_GUIDE.md](PYTHON_VENV_GUIDE.md)
+> 🐍 **Erreur pip "externally-managed-environment" ?** Deux solutions :
+> - **Solution simple** : Migrez depuis Homebrew → [REMOVE_HOMEBREW_PYTHON.md](REMOVE_HOMEBREW_PYTHON.md) ou `./migrate-from-homebrew.sh`
+> - **Solution pro** : Utilisez des environnements virtuels → [PYTHON_VENV_GUIDE.md](PYTHON_VENV_GUIDE.md)
 
 ### Étapes
 

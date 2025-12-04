@@ -2,6 +2,19 @@
 
 Guide ultra-rapide pour configurer Python, zip et pip sans Homebrew.
 
+## ⚠️ Vous avez Python via Homebrew ?
+
+Si vous obtenez l'erreur `externally-managed-environment` avec pip, **migrez vers une installation native** :
+
+```bash
+chmod +x migrate-from-homebrew.sh
+./migrate-from-homebrew.sh
+```
+
+➡️ **Voir le guide complet :** [REMOVE_HOMEBREW_PYTHON.md](REMOVE_HOMEBREW_PYTHON.md)
+
+---
+
 ## ⚡ Installation Express (2 minutes)
 
 ### Option 1 : Script Automatique (Recommandé)
