@@ -16,6 +16,10 @@ dist-ssr
 .env
 .env.local
 
+# Shell config backups
+*.zshrc.backup.*
+*.bash_profile.backup.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
