@@ -95,9 +95,21 @@ source ~/.zshrc
 # Ou ouvrir un nouveau terminal
 ```
 
+### Erreur "externally-managed-environment"
+```bash
+# Si pip3 affiche cette erreur, utilisez un environnement virtuel :
+cd votre-projet
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip  # Maintenant ça marche !
+
+# Pour plus de détails, consultez PYTHON_VENV_GUIDE.md
+```
+
 ## 📚 Documentation Complète
 
-Pour plus de détails, consultez [SETUP_MAC.md](SETUP_MAC.md)
+- **Configuration détaillée :** [SETUP_MAC.md](SETUP_MAC.md)
+- **Guide environnements virtuels :** [PYTHON_VENV_GUIDE.md](PYTHON_VENV_GUIDE.md)
 
 ---
 

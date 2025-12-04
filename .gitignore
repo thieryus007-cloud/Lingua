@@ -20,6 +20,15 @@ dist-ssr
 *.zshrc.backup.*
 *.bash_profile.backup.*
 
+# Python virtual environments
+venv/
+env/
+.venv/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

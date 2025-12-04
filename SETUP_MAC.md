@@ -177,6 +177,89 @@ python3 -m pip install --upgrade pip
 python3 -m pip install nom_du_package
 ```
 
+### Erreur "externally-managed-environment" avec pip
+
+Si vous obtenez cette erreur :
+```
+error: externally-managed-environment
+× This environment is externally managed
+```
+
+**Cause :** Votre Python est géré par Homebrew, qui protège l'installation système.
+
+**Vérifier si Python vient de Homebrew :**
+```bash
+which python3
+# Si le résultat contient "/opt/homebrew" ou "/usr/local/Cellar", c'est Homebrew
+
+python3 -c "import sys; print(sys.prefix)"
+# Même chose, vérifier si le chemin contient "homebrew" ou "Cellar"
+```
+
+**Solution 1 : Utiliser des environnements virtuels (RECOMMANDÉ)**
+
+Les environnements virtuels sont la **meilleure pratique** pour les projets Python :
+
+```bash
+# Créer un environnement virtuel dans votre projet
+cd /chemin/vers/votre/projet
+python3 -m venv venv
+
+# Activer l'environnement virtuel
+source venv/bin/activate
+
+# Maintenant pip fonctionne sans erreur !
+pip install --upgrade pip
+pip install requests numpy pandas  # etc.
+
+# Désactiver quand vous avez terminé
+deactivate
+```
+
+**Avantages des environnements virtuels :**
+- ✅ Isolation des dépendances par projet
+- ✅ Pas de conflit entre projets
+- ✅ Pas besoin de droits administrateur
+- ✅ Facile à recréer et partager (via requirements.txt)
+
+**Solution 2 : Installation utilisateur (pour outils globaux)**
+
+Pour installer des outils que vous voulez utiliser partout :
+
+```bash
+# Installer avec --user (dans votre dossier utilisateur)
+python3 -m pip install --user nom_du_package
+
+# Mettre à jour pip
+python3 -m pip install --user --upgrade pip
+```
+
+**Solution 3 : Désinstaller Python de Homebrew et réinstaller**
+
+Si vous voulez vraiment éviter Homebrew :
+
+```bash
+# 1. Désinstaller Python de Homebrew
+brew uninstall python@3.11  # ou python@3.12, vérifier avec: brew list | grep python
+
+# 2. Télécharger l'installateur officiel depuis python.org
+# Allez sur https://www.python.org/downloads/
+# Téléchargez "macOS 64-bit universal2 installer"
+
+# 3. Installer le fichier .pkg téléchargé
+
+# 4. Vérifier que Python n'est plus géré par Homebrew
+which python3
+# Devrait afficher: /usr/local/bin/python3 ou /Library/Frameworks/...
+
+# 5. Maintenant pip fonctionne normalement
+pip3 install --upgrade pip
+```
+
+**⚠️ Important :** N'utilisez JAMAIS `--break-system-packages` sauf si vous savez exactement ce que vous faites. Cela peut casser votre installation Python.
+
+**💡 Recommandation :** Utilisez **toujours** des environnements virtuels pour vos projets Python. C'est la meilleure pratique universelle.
+
 ### zip déjà présent sur macOS
 
 `zip` est normalement préinstallé sur tous les Mac. Si ce n'est pas le cas :
